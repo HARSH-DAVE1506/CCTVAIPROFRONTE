@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '../../../lib/utils';
 import { StreamDiagnostics } from '../../../types';
+import { CCTVPlayer } from '../../CCTVPlayer';
 import { 
   Play, 
   CheckCircle, 
@@ -16,6 +17,7 @@ import {
 } from '@phosphor-icons/react';
 
 interface StreamProbeTesterProps {
+  cameraId?: string;
   streamUrl: string;
   protocol: string;
   ipAddress: string;
@@ -25,6 +27,7 @@ interface StreamProbeTesterProps {
 }
 
 export const StreamProbeTester: React.FC<StreamProbeTesterProps> = ({
+  cameraId,
   streamUrl,
   protocol,
   ipAddress,
@@ -128,11 +131,21 @@ export const StreamProbeTester: React.FC<StreamProbeTesterProps> = ({
         {/* Live Video Preview Box */}
         <div className="col-span-7 space-y-3">
           <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-white/10 group shadow-2xl">
-            <img 
-              src={previewImage} 
-              alt="Live feed probe" 
-              className="w-full h-full object-cover opacity-85 group-hover:opacity-95 transition-opacity"
-            />
+            {streamUrl && (streamUrl.startsWith('/api/') || streamUrl.includes('.m3u8') || streamUrl.includes('whep') || streamUrl.startsWith('http')) ? (
+              <CCTVPlayer
+                cameraId={cameraId || 'cam01'}
+                streamUrl={streamUrl}
+                preferredProtocol={protocol.toLowerCase().includes('webrtc') ? 'WHEP' : 'HLS'}
+                className="w-full h-full"
+                showOverlay={false}
+              />
+            ) : (
+              <img 
+                src={previewImage} 
+                alt="Live feed probe" 
+                className="w-full h-full object-cover opacity-85 group-hover:opacity-95 transition-opacity"
+              />
+            )}
 
             {/* Scanline & Grid Effect */}
             <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-white/[0.03] to-transparent bg-[length:100%_4px] opacity-70" />

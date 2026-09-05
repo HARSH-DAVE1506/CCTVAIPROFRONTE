@@ -47,10 +47,34 @@ const generateSentinelCameras = (): Camera[] => {
   });
 };
 
+const ONBOARDED_STORAGE_KEY = 'sentinel_onboarded_cameras';
+
+const loadStoredCameras = (): Camera[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem(ONBOARDED_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    console.warn('[Emberly Store] Failed to load stored cameras:', e);
+    return [];
+  }
+};
+
+const saveStoredCameras = (cameras: Camera[]) => {
+  if (typeof window === 'undefined') return;
+  try {
+    // Only persist custom/onboarded cameras that are not part of standard base set
+    const customCameras = cameras.filter(c => !c.id.match(/^cam(0[1-9]|[12][0-9]|30)$/));
+    localStorage.setItem(ONBOARDED_STORAGE_KEY, JSON.stringify(customCameras));
+  } catch (e) {
+    console.warn('[Emberly Store] Failed to save cameras:', e);
+  }
+};
+
 export const useEmberlyStore = create<EmberlyState>((set) => ({
   mode: 'CENTRAL',
   department: 'STATE CONTROL',
-  cameras: generateSentinelCameras(),
+  cameras: [...loadStoredCameras(), ...generateSentinelCameras()],
   discoveredDevices: DISCOVERED_DEVICES,
   isOnboardingOpen: false,
   selectedCameraDetail: null,
@@ -59,21 +83,31 @@ export const useEmberlyStore = create<EmberlyState>((set) => ({
   setIsOnboardingOpen: (isOnboardingOpen) => set({ isOnboardingOpen }),
   setSelectedCameraDetail: (selectedCameraDetail) => set({ selectedCameraDetail }),
   addCamera: (newCamera) =>
-    set((state) => ({
-      cameras: [newCamera, ...state.cameras],
-      discoveredDevices: state.discoveredDevices.filter(d => d.ipAddress !== newCamera.ipAddress),
-    })),
+    set((state) => {
+      const updated = [newCamera, ...state.cameras.filter(c => c.id !== newCamera.id)];
+      saveStoredCameras(updated);
+      return {
+        cameras: updated,
+        discoveredDevices: state.discoveredDevices.filter(d => d.ipAddress !== newCamera.ipAddress),
+      };
+    }),
   updateCamera: (id, updates) =>
-    set((state) => ({
-      cameras: state.cameras.map((cam) =>
+    set((state) => {
+      const updated = state.cameras.map((cam) =>
         cam.id === id ? { ...cam, ...updates } : cam
-      ),
-    })),
+      );
+      saveStoredCameras(updated);
+      return { cameras: updated };
+    }),
   deleteCamera: (id) =>
-    set((state) => ({
-      cameras: state.cameras.filter((cam) => cam.id !== id),
-      selectedCameraDetail: state.selectedCameraDetail?.id === id ? null : state.selectedCameraDetail,
-    })),
+    set((state) => {
+      const updated = state.cameras.filter((cam) => cam.id !== id);
+      saveStoredCameras(updated);
+      return {
+        cameras: updated,
+        selectedCameraDetail: state.selectedCameraDetail?.id === id ? null : state.selectedCameraDetail,
+      };
+    }),
   removeDiscoveredDevice: (id) =>
     set((state) => ({
       discoveredDevices: state.discoveredDevices.filter((d) => d.id !== id),

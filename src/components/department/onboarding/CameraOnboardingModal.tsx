@@ -563,31 +563,48 @@ export const CameraOnboardingModal: React.FC<CameraOnboardingModalProps> = ({ is
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 block">
-                            Primary Monitoring Stream (HLS)
+                            Primary Monitoring Stream (HLS / WebRTC)
                           </label>
-                          <button 
-                            type="button"
-                            onClick={() => {
-                              const camId = formData.id.toLowerCase().replace(/[^a-z0-9]/g, '');
-                              setFormData({
-                                ...formData,
-                                streamUrl: `/api/surveillance/${camId || 'cam01'}/index.m3u8`,
-                                protocol: 'HTTPS (HLS)'
-                              });
-                            }}
-                            className="text-[9px] font-bold text-orange-500 hover:text-orange-400 uppercase tracking-tight"
-                          >
-                            Sentinel Quick-Fill (HLS)
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const camId = formData.id.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                setFormData({
+                                  ...formData,
+                                  streamUrl: `/api/surveillance/${camId || 'cam01'}/index.m3u8`,
+                                  protocol: 'HTTPS (HLS)'
+                                });
+                              }}
+                              className="text-[9px] font-bold text-orange-500 hover:text-orange-400 uppercase tracking-tight"
+                            >
+                              HLS Quick-Fill
+                            </button>
+                            <span className="text-white/20">|</span>
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const camId = formData.id.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                setFormData({
+                                  ...formData,
+                                  streamUrl: `/api/whep/${camId || 'cam01'}`,
+                                  protocol: 'WebRTC'
+                                });
+                              }}
+                              className="text-[9px] font-bold text-amber-400 hover:text-amber-300 uppercase tracking-tight"
+                            >
+                              WebRTC Quick-Fill
+                            </button>
+                          </div>
                         </div>
                         <input
                           type="text"
                           value={formData.streamUrl}
                           onChange={(e) => setFormData({ ...formData, streamUrl: e.target.value })}
-                          placeholder="/api/surveillance/cam01/index.m3u8"
+                          placeholder="/api/surveillance/cam01/index.m3u8 or https://.../stream.m3u8"
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-orange-500/50"
                         />
-                        <span className="text-[9px] text-white/30 mt-1 block">Used for real-time browser monitoring and dashboard tiles</span>
+                        <span className="text-[9px] text-white/30 mt-1 block">Used for real-time browser monitoring and dashboard tiles (Supports custom HLS .m3u8, WebRTC endpoint, or relative proxy)</span>
                       </div>
 
                       <div>
@@ -693,6 +710,7 @@ export const CameraOnboardingModal: React.FC<CameraOnboardingModalProps> = ({ is
               {currentStep === 3 && (
                 <div className="animate-fade-in">
                   <StreamProbeTester
+                    cameraId={formData.id}
                     streamUrl={formData.streamUrl}
                     protocol={formData.protocol}
                     ipAddress={formData.ipAddress}

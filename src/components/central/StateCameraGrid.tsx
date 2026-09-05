@@ -5,6 +5,7 @@ import { CCTVPlayer } from '../CCTVPlayer';
 import { Camera } from '../../types';
 import { cn } from '../../lib/utils';
 import { MapView } from '../map/MapView';
+import { CameraOnboardingModal } from '../department/onboarding/CameraOnboardingModal';
 import { 
   MagnifyingGlass, 
   VideoCamera, 
@@ -28,11 +29,12 @@ import {
   Lightning,
   FilmReel,
   Rows,
-  GridFour
+  GridFour,
+  Plus
 } from '@phosphor-icons/react';
 
 export const StateCameraGrid: React.FC = () => {
-  const { cameras: emberlyCameras } = useEmberlyStore();
+  const { cameras: emberlyCameras, isOnboardingOpen, setIsOnboardingOpen } = useEmberlyStore();
   const { cameras: cctvCameras, isLoading, streamMode, setStreamMode, fetchCameras } = useCCTVStore();
 
   const displayCameras: Camera[] = useMemo(() => {
@@ -184,6 +186,16 @@ export const StateCameraGrid: React.FC = () => {
               <span>Spatial map</span>
             </button>
           </div>
+
+          {/* Onboard New Camera Button */}
+          <button
+            onClick={() => setIsOnboardingOpen(true)}
+            className="btn btn-primary text-xs font-mono font-bold flex items-center gap-1.5 px-3 py-2 rounded-[var(--r-md)] shadow-sm hover:shadow-md transition-all whitespace-nowrap"
+            title="Onboard real/custom camera stream to surveillance grid"
+          >
+            <Plus size={15} weight="bold" />
+            <span>Onboard Camera</span>
+          </button>
         </div>
       </header>
 
@@ -534,6 +546,12 @@ export const StateCameraGrid: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Camera Onboarding Modal */}
+      <CameraOnboardingModal 
+        isOpen={isOnboardingOpen} 
+        onClose={() => setIsOnboardingOpen(false)} 
+      />
     </div>
   );
 };
