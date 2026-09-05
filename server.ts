@@ -304,19 +304,49 @@ app.use('/api/surveillance', async (req, res) => {
 
           let rewritten = body
             .replace(/https?:\/\/cctv\.corp8\.cloud/g, '/api/surveillance')
-            .replace(/URI="\/([^"]+)"/g, 'URI="/api/surveillance/$1"');
+            .replace(/URI="\/([^"]+)"/g, 'URI="/api/surveillance/$1"')
+            .replace(/#EXT-X-PLAYLIST-TYPE:VOD\r?\n?/g, '')
+            .replace(/#EXT-X-ENDLIST\r?\n?/g, '');
 
-          if (camPrefix) {
-            rewritten = rewritten.replace(/URI="([^"/]+)"/g, `URI="/api/surveillance${camPrefix}/$1"`);
+          const lines = rewritten.split('\n');
+          const segmentEntries: { inf: string; url: string }[] = [];
+
+          let currentInf = '';
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            if (line.startsWith('#EXTINF:')) {
+              currentInf = line;
+            } else if (currentInf && !line.startsWith('#')) {
+              let segUrl = line;
+              if (camPrefix && !segUrl.startsWith('/') && !segUrl.startsWith('http')) {
+                segUrl = `/api/surveillance${camPrefix}/${segUrl}`;
+              }
+              segmentEntries.push({ inf: currentInf, url: segUrl });
+              currentInf = '';
+            }
           }
 
+          const windowSize = 8;
+          const liveSegments = segmentEntries.slice(-windowSize);
+          const mediaSequence = Math.max(0, segmentEntries.length - windowSize);
+
+          const liveM3U8 = [
+            '#EXTM3U',
+            '#EXT-X-VERSION:3',
+            '#EXT-X-TARGETDURATION:8',
+            `#EXT-X-MEDIA-SEQUENCE:${mediaSequence}`,
+            ...liveSegments.flatMap(s => [s.inf, s.url]),
+            ''
+          ].join('\n');
+
           playlistCache.set(targetPath, {
-            body: rewritten,
-            expiry: Date.now() + 1500
+            body: liveM3U8,
+            expiry: Date.now() + 2000
           });
 
           res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
-          res.send(rewritten);
+          res.send(liveM3U8);
         });
       } 
       // B) Camera Catalogue

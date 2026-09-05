@@ -93,19 +93,20 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
     if (Hls.isSupported()) {
       const hls = new Hls({
         enableWorker: true,
-        lowLatencyMode: false,      // Disabled low latency mode for rock-solid stability across 30 streams
-        backBufferLength: 0,        // Immediately purge old segments (saves 90% memory!)
-        maxBufferLength: 6,         // Keep buffer small & agile
-        maxMaxBufferLength: 12,
-        liveSyncDurationCount: 2,
+        lowLatencyMode: false,
+        backBufferLength: 30,          // Retain recent segments to avoid black frame dropouts
+        maxBufferLength: 20,          // Healthy 20s forward buffer for rock-solid continuous playback
+        maxMaxBufferLength: 40,
+        liveSyncDurationCount: 3,     // Stay ~18s safely behind live edge for 100% uninterrupted feeds
+        maxBufferHole: 0.5,
         manifestLoadingTimeOut: 20000,
-        manifestLoadingMaxRetry: 15,
+        manifestLoadingMaxRetry: 10,
         manifestLoadingRetryDelay: 1000,
         fragLoadingTimeOut: 25000,
-        fragLoadingMaxRetry: 15,
+        fragLoadingMaxRetry: 10,
         fragLoadingRetryDelay: 1000,
         nudgeOffset: 0.2,
-        nudgeMaxRetry: 15,
+        nudgeMaxRetry: 10,
         startLevel: -1,
       });
 
@@ -120,30 +121,22 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
         setIsBuffering(false);
       });
 
-      // Handle stream errors gracefully without freezing
+      // Handle stream errors gracefully without freezing or showing black screen
       hls.on(Hls.Events.ERROR, (_, data) => {
-        // Buffer stalled is self-healing, nudge forward
         if (data.details === 'bufferStalledError') {
           hls.startLoad();
-          if (video && video.buffered.length > 0) {
-            video.currentTime = video.buffered.end(video.buffered.length - 1) - 0.2;
-            video.play().catch(() => {});
-          }
           return;
         }
 
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.warn(`[HLS Network] ${cameraId} reconnecting...`);
               hls.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              console.warn(`[HLS Media] ${cameraId} recovering media...`);
               hls.recoverMediaError();
               break;
             default:
-              console.warn(`[HLS Recover] ${cameraId}:`, data.details);
               hls.destroy();
               retryTimeoutRef.current = setTimeout(() => {
                 setRetryCount(c => c + 1);
@@ -156,7 +149,7 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
       hls.attachMedia(video);
       hlsRef.current = hls;
 
-      // Anti-Freeze Watchdog: detects if video freezes on a single frame
+      // Gentle Anti-Freeze Watchdog: only acts if frozen for > 6 seconds to prevent unnecessary restarts
       watchdogIntervalRef.current = setInterval(() => {
         if (!video) return;
 
@@ -164,15 +157,13 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
           const currentTime = video.currentTime;
           if (Math.abs(currentTime - lastTimeRef.current) < 0.05) {
             stallCounterRef.current++;
-            // If frozen for > 2 seconds, trigger unfreeze recovery
-            if (stallCounterRef.current >= 2) {
-              console.log(`[Anti-Freeze Watchdog] Unfreezing camera ${cameraId}...`);
+            if (stallCounterRef.current >= 3) {
               if (hlsRef.current) {
                 hlsRef.current.startLoad();
               }
               if (video.buffered.length > 0) {
                 const liveEdge = video.buffered.end(video.buffered.length - 1);
-                video.currentTime = Math.max(0, liveEdge - 0.3);
+                video.currentTime = Math.max(0, liveEdge - 1.0);
               }
               video.play().catch(() => {});
               stallCounterRef.current = 0;
@@ -183,7 +174,7 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
           }
           lastTimeRef.current = currentTime;
         }
-      }, 1500);
+      }, 2000);
 
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       // Native HLS for Safari/iOS

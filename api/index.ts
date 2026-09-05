@@ -285,21 +285,57 @@ export default async function handler(req: any, res: any) {
               const dirMatch = targetPath.match(/^(\/cam\d+)\//);
               const camPrefix = dirMatch ? dirMatch[1] : '';
 
+              // 1. Rewrite base and URI paths
               let rewritten = body
                 .replace(/https?:\/\/cctv\.corp8\.cloud/g, '/api/surveillance')
-                .replace(/URI="\/([^"]+)"/g, 'URI="/api/surveillance/$1"');
+                .replace(/URI="\/([^"]+)"/g, 'URI="/api/surveillance/$1"')
+                .replace(/#EXT-X-PLAYLIST-TYPE:VOD\r?\n?/g, '')
+                .replace(/#EXT-X-ENDLIST\r?\n?/g, '');
 
-              if (camPrefix) {
-                rewritten = rewritten.replace(/URI="([^"/]+)"/g, `URI="/api/surveillance${camPrefix}/$1"`);
+              // 2. Convert huge static VOD list (14,000+ lines) into a fast, lightweight live sliding window
+              const lines = rewritten.split('\n');
+              const headerLines: string[] = [];
+              const segmentEntries: { inf: string; url: string }[] = [];
+
+              let currentInf = '';
+              for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                if (line.startsWith('#EXTINF:')) {
+                  currentInf = line;
+                } else if (currentInf && !line.startsWith('#')) {
+                  let segUrl = line;
+                  if (camPrefix && !segUrl.startsWith('/') && !segUrl.startsWith('http')) {
+                    segUrl = `/api/surveillance${camPrefix}/${segUrl}`;
+                  }
+                  segmentEntries.push({ inf: currentInf, url: segUrl });
+                  currentInf = '';
+                } else if (!line.startsWith('#EXT-X-MEDIA-SEQUENCE:') && !line.startsWith('#EXT-X-TARGETDURATION:') && line.startsWith('#')) {
+                  headerLines.push(line);
+                }
               }
 
+              // Keep last 8 segments (~48 seconds) for smooth, instantaneous live playback
+              const windowSize = 8;
+              const liveSegments = segmentEntries.slice(-windowSize);
+              const mediaSequence = Math.max(0, segmentEntries.length - windowSize);
+
+              const liveM3U8 = [
+                '#EXTM3U',
+                '#EXT-X-VERSION:3',
+                '#EXT-X-TARGETDURATION:8',
+                `#EXT-X-MEDIA-SEQUENCE:${mediaSequence}`,
+                ...liveSegments.flatMap(s => [s.inf, s.url]),
+                ''
+              ].join('\n');
+
               playlistCache.set(targetPath, {
-                body: rewritten,
-                expiry: Date.now() + 1500
+                body: liveM3U8,
+                expiry: Date.now() + 2000
               });
 
               res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
-              res.end(rewritten);
+              res.end(liveM3U8);
               resolve();
             });
           } 
