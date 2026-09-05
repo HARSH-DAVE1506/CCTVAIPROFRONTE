@@ -26,10 +26,13 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
   const globalStreamMode = useCCTVStore((s) => s.streamMode);
   const activeProtocol = preferredProtocol || globalStreamMode;
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isInViewport, setIsInViewport] = useState<boolean>(true);
+  const [hasFirstFrame, setHasFirstFrame] = useState<boolean>(false);
   const [activeEngine, setActiveEngine] = useState<'WHEP' | 'HLS'>(activeProtocol);
   const [error, setError] = useState<string | null>(null);
-  const [isBuffering, setIsBuffering] = useState(true);
+  const [isBuffering, setIsBuffering] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -95,10 +98,10 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
         enableWorker: true,
         lowLatencyMode: false,
         backBufferLength: 30,          // Retain recent segments to avoid black frame dropouts
-        maxBufferLength: 20,          // Healthy 20s forward buffer for rock-solid continuous playback
-        maxMaxBufferLength: 40,
-        liveSyncDurationCount: 3,     // Stay ~18s safely behind live edge for 100% uninterrupted feeds
-        maxBufferHole: 0.5,
+        maxBufferLength: 15,          // 15s forward buffer is optimal for high concurrency
+        maxMaxBufferLength: 30,
+        liveSyncDurationCount: 2,     // Stay ~12s behind live edge for fast start and zero stall
+        maxBufferHole: 0.8,
         manifestLoadingTimeOut: 20000,
         manifestLoadingMaxRetry: 10,
         manifestLoadingRetryDelay: 1000,
@@ -118,6 +121,10 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
         if (autoPlay && video) {
           video.play().catch(() => {});
         }
+      });
+
+      hls.on(Hls.Events.FRAG_BUFFERED, () => {
+        setHasFirstFrame(true);
         setIsBuffering(false);
       });
 
@@ -219,6 +226,7 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
       pc.ontrack = (event) => {
         if (videoRef.current && event.streams && event.streams[0]) {
           videoRef.current.srcObject = event.streams[0];
+          setHasFirstFrame(true);
           setIsBuffering(false);
           if (autoPlay) {
             videoRef.current.play().catch(() => {});
@@ -271,8 +279,32 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
     }
   }, [cameraId, propStreamUrl, autoPlay, cleanupEngines, startHlsEngine]);
 
-  // Lifecycle with small startup stagger to avoid socket stampedes
+  // Viewport intersection observer: dynamically attach or detach stream decoder
   useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setIsInViewport(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInViewport(entry.isIntersecting);
+      },
+      { rootMargin: '250px 0px 250px 0px', threshold: 0.01 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Lifecycle: start stream only when in or near viewport
+  useEffect(() => {
+    if (!isInViewport) {
+      cleanupEngines();
+      return;
+    }
+
     const camNum = parseInt(cleanId.replace(/\D/g, ''), 10) || 0;
     const staggerMs = (camNum % 6) * 120; // Stagger across 6 slots
 
@@ -288,7 +320,7 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
       clearTimeout(timer);
       cleanupEngines();
     };
-  }, [cameraId, activeProtocol, retryCount, startWhepEngine, startHlsEngine, cleanupEngines]);
+  }, [isInViewport, cameraId, activeProtocol, retryCount, startWhepEngine, startHlsEngine, cleanupEngines]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
@@ -313,23 +345,47 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
   };
 
   return (
-    <div className={cn("relative bg-neutral-950 overflow-hidden group select-none", className)}>
+    <div ref={containerRef} className={cn("relative bg-[#0b0f19] overflow-hidden group select-none", className)}>
       <video
         ref={videoRef}
         muted={muted}
         playsInline
         autoPlay={autoPlay}
         preload="metadata"
-        className="w-full h-full object-cover"
+        onLoadedData={() => setHasFirstFrame(true)}
+        onPlaying={() => {
+          setHasFirstFrame(true);
+          setIsBuffering(false);
+        }}
+        onWaiting={() => setIsBuffering(true)}
+        className={cn(
+          "w-full h-full object-cover transition-opacity duration-300",
+          hasFirstFrame ? "opacity-100" : "opacity-0"
+        )}
       />
 
-      {/* Buffering State */}
-      {isBuffering && !error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-none">
-          <div className="flex flex-col items-center gap-2">
-            <ArrowsClockwise size={26} className="text-[var(--color-ember,#f97316)] animate-spin opacity-80" />
-            <span className="text-[10px] font-mono font-bold text-white tracking-wider uppercase opacity-80">
-              Live {activeEngine}
+      {/* Standby Card Backdrop before first frame or when outside viewport */}
+      {!hasFirstFrame && !error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-neutral-900 via-neutral-950 to-black p-4 text-center">
+          <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center mb-2 shadow-inner">
+            <Broadcast size={18} className="text-orange-500/80 animate-pulse" />
+          </div>
+          <span className="text-[11px] font-mono font-bold text-white/90 tracking-wide uppercase">
+            {cleanId.toUpperCase()}
+          </span>
+          <span className="text-[9px] font-mono text-white/40 mt-0.5">
+            {isInViewport ? 'Synchronizing stream...' : 'Standby (Scroll to activate)'}
+          </span>
+        </div>
+      )}
+
+      {/* Buffering State - only shown if stream already started and briefly stalls */}
+      {isBuffering && hasFirstFrame && !error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px] pointer-events-none transition-all">
+          <div className="flex flex-col items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/60 border border-white/10">
+            <ArrowsClockwise size={20} className="text-[var(--color-ember,#f97316)] animate-spin opacity-90" />
+            <span className="text-[9px] font-mono font-bold text-white/80 tracking-wider uppercase">
+              Buffering
             </span>
           </div>
         </div>
