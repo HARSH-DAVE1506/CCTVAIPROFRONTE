@@ -237,7 +237,7 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
 
       pc.oniceconnectionstatechange = () => {
         if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
-          console.warn(`[WHEP ICE] ${cameraId} fallback to HLS.`);
+          // Gracefully fallback to HLS without interrupting playback
           startHlsEngine();
         }
       };
@@ -245,10 +245,27 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
+      // Wait for ICE gathering to complete or timeout (up to 800ms) so candidates are included in SDP
+      if (pc.iceGatheringState !== 'complete') {
+        await new Promise<void>((resolve) => {
+          const timeout = setTimeout(() => resolve(), 800);
+          const checkState = () => {
+            if (pc.iceGatheringState === 'complete') {
+              clearTimeout(timeout);
+              pc.removeEventListener('icegatheringstatechange', checkState);
+              resolve();
+            }
+          };
+          pc.addEventListener('icegatheringstatechange', checkState);
+        });
+      }
+
+      const sdpToSend = pc.localDescription?.sdp || offer.sdp;
+
       const res = await fetch(whepUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/sdp' },
-        body: offer.sdp,
+        body: sdpToSend,
       });
 
       if (!res.ok) {
@@ -258,8 +275,7 @@ export const CCTVPlayer: React.FC<CCTVPlayerProps> = ({
       const answerSdp = await res.text();
       await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
     } catch (err: any) {
-      // If WebRTC negotiation fails, seamlessly switch to high-stability HLS engine
-      console.warn(`[WHEP] ${cameraId} failed, auto-falling back to HLS stream...`);
+      // Seamlessly switch to high-stability HLS engine
       startHlsEngine();
     }
   }, [cameraId, propStreamUrl, autoPlay, cleanupEngines, startHlsEngine]);

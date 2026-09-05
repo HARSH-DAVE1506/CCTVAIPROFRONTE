@@ -73,7 +73,7 @@ export const useCCTVStore = create<CCTVState>((set) => ({
   cameras: [],
   isLoading: false,
   error: null,
-  streamMode: 'WHEP',
+  streamMode: 'HLS',
   setStreamMode: (mode) => set({ streamMode: mode }),
   fetchCameras: async () => {
     set({ isLoading: true, error: null });
