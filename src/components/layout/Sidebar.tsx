@@ -63,10 +63,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
     <aside className="w-[240px] flex-none flex flex-col bg-[var(--color-surface)] border-r border-[var(--color-hairline)] h-screen overflow-y-auto">
       <div className="flex items-center gap-3 px-[var(--sp-4)] py-[var(--sp-6)] mb-[var(--sp-4)] border-b border-[var(--color-hairline)]">
         <div className="w-[24px] h-[24px] rounded-[var(--r-sm)] bg-[var(--color-ember)] flex items-center justify-center text-white font-bold text-xs shrink-0">
-          E
+          C
         </div>
         <div>
-          <h1 className="text-[13px] font-semibold text-[var(--color-ink)] leading-none">Emberly</h1>
+          <h1 className="text-[13px] font-semibold text-[var(--color-ink)] leading-none">Caksham AI</h1>
           <p className="text-[10px] text-[var(--color-ink-muted)] font-medium mt-[2px]">
             {mode === 'CENTRAL' ? 'Command Suite' : 'Operational Node'}
           </p>

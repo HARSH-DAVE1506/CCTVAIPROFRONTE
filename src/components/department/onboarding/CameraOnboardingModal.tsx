@@ -56,7 +56,7 @@ export const CameraOnboardingModal: React.FC<CameraOnboardingModalProps> = ({ is
     ipAddress: '103.250.160.189',
     port: 554,
     transport: 'TCP',
-    username: 'admin_emberly',
+    username: 'admin_caksham',
     password: '••••••••••••',
     authMethod: 'DIGEST',
     resolution: '4K (3840x2160)',
