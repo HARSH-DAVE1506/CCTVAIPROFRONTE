@@ -61,15 +61,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
   return (
     <aside className="w-[240px] flex-none flex flex-col bg-[var(--color-surface)] border-r border-[var(--color-hairline)] h-screen overflow-y-auto">
-      <div className="flex items-center gap-3 px-[var(--sp-4)] py-[var(--sp-6)] mb-[var(--sp-4)] border-b border-[var(--color-hairline)]">
-        <div className="w-[24px] h-[24px] rounded-[var(--r-sm)] bg-[var(--color-ember)] flex items-center justify-center text-white font-bold text-xs shrink-0">
-          C
+      <div className="flex flex-col gap-2 px-[var(--sp-4)] py-[var(--sp-5)] mb-[var(--sp-3)] border-b border-[var(--color-hairline)]">
+        <div className="flex items-center gap-2.5">
+          {/* Official Reticle Mark A: 24px Nav Rail Size */}
+          <div className="w-[26px] h-[26px] flex items-center justify-center shrink-0" title="Caksham AI">
+            <svg width="22" height="22" viewBox="0 0 48 48" className="text-[var(--color-ink)] fill-current">
+              <path 
+                d="M4 16V6a2 2 0 0 1 2-2h10 M4 32V42a2 2 0 0 0 2 2h10 M44 16V6a2 2 0 0 0-2-2H32 M44 32V42a2 2 0 0 1-2 2H32" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="3.6" 
+                strokeLinecap="square"
+              />
+              <rect x="20" y="20" width="8" height="8" fill="currentColor" />
+            </svg>
+          </div>
+          <div>
+            <div className="flex items-baseline tracking-[-0.03em] leading-none">
+              <span className="text-[14px] font-bold text-[var(--color-ink)] font-sans">Caksham</span>
+              <span className="text-[13px] font-normal text-[var(--color-ink-secondary)] font-sans ml-1">AI</span>
+            </div>
+            <p className="text-[9.5px] text-[var(--color-ink-muted)] font-mono tracking-wider uppercase mt-[3px]">
+              {mode === 'CENTRAL' ? 'State Command' : 'Department Node'}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-[13px] font-semibold text-[var(--color-ink)] leading-none">Caksham AI</h1>
-          <p className="text-[10px] text-[var(--color-ink-muted)] font-medium mt-[2px]">
-            {mode === 'CENTRAL' ? 'Command Suite' : 'Operational Node'}
-          </p>
+        {/* Brand Tagline */}
+        <div className="text-[10px] text-[var(--color-ink-muted)] font-sans tracking-tight pl-[31px] -mt-1 leading-tight select-none">
+          Vision That Understands Too
         </div>
       </div>
 

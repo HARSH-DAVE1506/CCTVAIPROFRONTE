@@ -1,6 +1,6 @@
 {
-  "name": "Caksham AI",
-  "description": "A government-owned, AI-first video intelligence platform for statewide CCTV intelligence and management.",
+  "name": "Caksham AI: Vision That Understands Too",
+  "description": "Caksham AI: Vision That Understands Too — A sovereign, AI-first video intelligence platform for statewide CCTV intelligence and management.",
   "requestFramePermissions": ["camera", "microphone", "geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

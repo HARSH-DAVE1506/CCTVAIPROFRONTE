@@ -25,12 +25,12 @@ export const ReportGenerator: React.FC = () => {
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-[22px] font-semibold tracking-tight text-[var(--color-ink)] mb-1">Operational intelligence outputs</h2>
-            <span className="badge badge-accent font-[var(--font-mono)]">
-              REPORT CENTER
+            <span className="badge badge-accent font-[var(--font-mono)] text-[10px]">
+              CAKSHAM AI · REPORT CENTER
             </span>
           </div>
           <p className="text-[13px] text-[var(--color-ink-secondary)]">
-            Generate and manage operational intelligence outputs, investigation summaries, and audit logs.
+            <span className="font-semibold text-[var(--color-ink)]">Caksham AI</span>: <span className="italic text-[var(--color-ink-muted)]">"Vision That Understands Too"</span> — Generate and audit operational intelligence outputs, investigation dossiers, and chain-of-custody logs.
           </p>
         </div>
       </header>

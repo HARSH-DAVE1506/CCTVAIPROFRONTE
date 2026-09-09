@@ -101,11 +101,14 @@ export const CentralSettings: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="p-[var(--sp-4)] rounded-[var(--r-md)] bg-[var(--color-surface)] border border-[var(--color-hairline)] space-y-2">
-                    <label className="eyebrow uppercase block">Platform identity</label>
+                    <div className="flex items-center justify-between">
+                      <label className="eyebrow uppercase block">Platform identity</label>
+                      <span className="text-[10px] font-mono text-[var(--color-ink-muted)]">"Vision That Understands Too"</span>
+                    </div>
                     <input
                       type="text"
                       disabled
-                      value="Caksham AI Statewide Intelligence Operating System"
+                      value="Caksham AI: Vision That Understands Too"
                       className="w-full bg-[var(--color-surface-raised)] border border-[var(--color-hairline)] rounded-[var(--r-md)] px-3 py-2 text-[var(--color-ink)] font-[var(--font-mono)] text-[12px] focus:outline-none"
                     />
                   </div>

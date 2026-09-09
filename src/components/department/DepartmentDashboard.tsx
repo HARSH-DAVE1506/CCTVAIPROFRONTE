@@ -42,7 +42,7 @@ export const DepartmentDashboard: React.FC = () => {
         <div>
           <h2 className="text-[22px] font-semibold tracking-tight text-[var(--color-ink)] mb-1">Department Dashboard</h2>
           <p className="text-[13px] text-[var(--color-ink-secondary)]">
-            Current operational status for <span className="text-[var(--color-ink)] font-semibold">{department} District 4</span>
+            <span className="font-semibold text-[var(--color-ink)]">Caksham AI</span>: <span className="italic text-[var(--color-ink-muted)]">"Vision That Understands Too"</span> — Operational status for <span className="text-[var(--color-ink)] font-semibold">{department} District 4</span>
           </p>
         </div>
         <button className="btn btn-ember">

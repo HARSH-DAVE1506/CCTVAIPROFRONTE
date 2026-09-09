@@ -176,18 +176,27 @@ export const CameraOnboardingModal: React.FC<CameraOnboardingModalProps> = ({ is
         {/* Header */}
         <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-600/20 border border-orange-500/30 flex items-center justify-center text-orange-500 shadow-[0_0_15px_rgba(234,88,12,0.2)]">
-              <VideoCamera size={22} weight="fill" />
+            <div className="w-10 h-10 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white shadow-sm shrink-0">
+              <svg width="20" height="20" viewBox="0 0 48 48" className="fill-current text-white">
+                <path 
+                  d="M4 16V6a2 2 0 0 1 2-2h10 M4 32V42a2 2 0 0 0 2 2h10 M44 16V6a2 2 0 0 0-2-2H32 M44 32V42a2 2 0 0 1-2 2H32" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="3.6" 
+                  strokeLinecap="square"
+                />
+                <rect x="20" y="20" width="8" height="8" fill="currentColor" />
+              </svg>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white tracking-wide">CCTV Onboarding Module</h3>
-                <span className="px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 text-[9px] font-bold uppercase tracking-wider font-mono">
-                  DEPARTMENT SURVEILLANCE NODE
+                <h3 className="text-base font-bold text-white tracking-wide">Caksham AI · Stream Commissioning</h3>
+                <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white/70 text-[9px] font-bold uppercase tracking-wider font-mono">
+                  GOVERNMENT SURVEILLANCE NODE
                 </span>
               </div>
-              <p className="text-[11px] text-white/40">
-                Register new municipal streams, verify RTSP/ONVIF handshake, and bind approved AI capabilities.
+              <p className="text-[11px] text-white/50">
+                <span className="text-white/80 font-medium">"Vision That Understands Too"</span> — Ingest and verify real camera streams with edge AI capability binding.
               </p>
             </div>
           </div>

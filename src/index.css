@@ -31,7 +31,7 @@
   --color-offline: #6b7280;
 
   /* Type */
-  --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
 
   /* Spacing scale */

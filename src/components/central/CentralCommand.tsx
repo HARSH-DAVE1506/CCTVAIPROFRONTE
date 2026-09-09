@@ -59,12 +59,12 @@ export const CentralCommand: React.FC = () => {
         <div>
           <div className="flex items-center gap-3">
             <h2 className="text-[22px] font-semibold tracking-tight text-[var(--color-ink)] mb-1">State Command Center</h2>
-            <span className="badge badge-accent uppercase">
-              Statewide Operations
+            <span className="badge badge-accent uppercase font-mono text-[10px]">
+              CAKSHAM AI · COMMAND
             </span>
           </div>
           <p className="text-[13px] text-[var(--color-ink-secondary)]">
-            Unified Situational Awareness · <span className="text-[var(--color-ink)]">Gujarat State Command Grid</span> · <code className="text-[var(--color-ember)] font-semibold">LIVE IST</code>
+            <span className="font-semibold text-[var(--color-ink)]">Caksham AI</span>: <span className="italic text-[var(--color-ink-muted)]">"Vision That Understands Too"</span> · Unified Situational Awareness · <span className="text-[var(--color-ink)]">Gujarat State Command Grid</span> · <code className="text-[var(--color-ember)] font-semibold">LIVE IST</code>
           </p>
         </div>
 

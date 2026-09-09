@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<title>Caksham AI — Brand Identity</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060708; --surface:#0c0e11; --surface-2:#111418;
+  --line:#1d2126; --line-strong:#2b3037;
+  --ink:#f1f2f4; --ink-2:#888d95; --ink-3:#4c5158;
+  --grid-line: rgba(255,255,255,.035);
+  --f-sans:'IBM Plex Sans', ui-sans-serif, sans-serif;
+  --f-mono:'IBM Plex Mono', ui-monospace, monospace;
+  --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px; --sp-16:64px;
+}
+html[data-theme="light"]{
+  --bg:#ffffff; --surface:#fafafa; --surface-2:#f2f3f4;
+  --line:#e4e5e8; --line-strong:#cfd1d6;
+  --ink:#0b0c0d; --ink-2:#6a6e75; --ink-3:#a2a6ad;
+  --grid-line: rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--f-sans); font-size:13.5px; line-height:1.6;
+  background-image:linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:28px 28px;}
+h1,h2,h3{margin:0; font-weight:600; letter-spacing:-.01em;}
+p{margin:0;}
+.mono{font-family:var(--f-mono);}
+.theme-switch{position:fixed; top:18px; right:18px; z-index:50; display:flex; border:1px solid var(--line-strong); background:var(--surface);}
+.theme-btn{background:none; border:none; color:var(--ink-3); font-family:var(--f-mono); font-size:10px; letter-spacing:.06em; padding:7px 12px; cursor:pointer;}
+.theme-btn.on{color:var(--ink); background:var(--surface-2);}
+.theme-btn+.theme-btn{border-left:1px solid var(--line-strong);}
+
+.wrap{max-width:980px; margin:0 auto; padding:96px var(--sp-8) var(--sp-16);}
+.top{margin-bottom:var(--sp-16);}
+.top .sub{font-family:var(--f-mono); font-size:11px; color:var(--ink-3); margin-bottom:var(--sp-3);}
+.top h1{font-size:32px;}
+.top .tagline{font-family:var(--f-sans); font-size:16px; color:var(--ink-2); margin-top:8px; font-weight:400;}
+
+.sec{margin-bottom:88px; scroll-margin-top:32px;}
+.idx{font-family:var(--f-mono); font-size:11px; color:var(--ink-3); margin-bottom:var(--sp-2);}
+.sec h2{font-size:22px; margin-bottom:var(--sp-3);}
+.lede{font-size:13.5px; color:var(--ink-2); max-width:660px; margin-bottom:var(--sp-6); line-height:1.7;}
+.note{font-size:12px; color:var(--ink-2); max-width:660px; margin-top:var(--sp-5); line-height:1.7; padding-left:var(--sp-4); border-left:2px solid var(--line-strong);}
+.note b{color:var(--ink); font-weight:600;}
+
+.stage{border:1px solid var(--line); display:flex; align-items:center; justify-content:center; padding:var(--sp-10); margin-bottom:var(--sp-3); position:relative;}
+.stage .cap{position:absolute; bottom:10px; left:14px; font-family:var(--f-mono); font-size:10px; color:var(--ink-3);}
+.stage.dark{background:#060708;}
+.stage.dark .wm-ink{fill:#f1f2f4;}
+.stage.light{background:#ffffff; border-color:#e4e5e8;}
+.stage.light .wm-ink{fill:#0b0c0d;}
+.stage.pref{background:var(--surface);}
+.stage.pref .wm-ink{fill:var(--ink);}
+
+.row3{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-3);}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-3);}
+
+.markcard{border:1px solid var(--line);}
+.markcard .mstage{padding:var(--sp-8); display:flex; align-items:center; justify-content:center; background:var(--surface); border-bottom:1px solid var(--line);}
+.markcard .minfo{padding:var(--sp-4);}
+.markcard h4{font-size:12.5px; margin-bottom:4px; font-weight:600;}
+.markcard p{font-size:11.5px; color:var(--ink-3); line-height:1.55;}
+.markcard.rec{border-color:var(--ink-2);}
+.markcard .flag{font-family:var(--f-mono); font-size:9.5px; color:var(--ink-3); letter-spacing:.05em; margin-bottom:6px; display:block;}
+.markcard.rec .flag{color:var(--ink);}
+
+.sizerow{display:flex; align-items:flex-end; gap:var(--sp-6); padding:var(--sp-6) 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin:var(--sp-6) 0;}
+.sizerow .u{text-align:center;}
+.sizerow .lbl{font-family:var(--f-mono); font-size:9.5px; color:var(--ink-3); margin-top:8px;}
+
+.lockup-h{display:flex; align-items:center; gap:14px;}
+.lockup-h .div{width:1px; height:34px; background:var(--line-strong);}
+.lockup-s{display:flex; flex-direction:column; align-items:center; gap:10px;}
+
+.clearspace{position:relative; padding:60px; border:1px dashed var(--line-strong);}
+
+.tspec{display:flex; align-items:baseline; gap:var(--sp-5); padding:var(--sp-3) 0; border-bottom:1px solid var(--line);}
+.tspec .tag{width:170px; flex:none; font-size:10.5px; color:var(--ink-3); font-family:var(--f-mono);}
+
+.dont{border:1px solid var(--line); padding:var(--sp-5); display:flex; flex-direction:column; align-items:center; gap:var(--sp-4);}
+.dont .x{font-family:var(--f-mono); font-size:10px; color:var(--ink-3);}
+
+.app-card{border:1px solid var(--line); overflow:hidden;}
+.app-card .surface{aspect-ratio:16/10; display:flex; align-items:center; justify-content:center; position:relative;}
+.app-card .cap{padding:var(--sp-3) var(--sp-4); border-top:1px solid var(--line); font-size:11px; color:var(--ink-3); font-family:var(--f-mono);}
+</style>
+</head>
+<body>
+<div class="theme-switch">
+  <button class="theme-btn on" data-t="dark" onclick="setTheme('dark')">DARK</button>
+  <button class="theme-btn" data-t="light" onclick="setTheme('light')">LIGHT</button>
+</div>
+
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <!-- Mark A: reticle brackets — the product's own detection-frame motif, used as the brand symbol -->
+  <g id="mark-a">
+    <path class="wm-ink" d="M4 16V6a2 2 0 0 1 2-2h10 M4 32V42a2 2 0 0 0 2 2h10 M44 16V6a2 2 0 0 0-2-2H32 M44 32V42a2 2 0 0 1-2 2H32" fill="none" stroke-width="3.4" stroke-linecap="square"/>
+    <rect class="wm-ink" x="20" y="20" width="8" height="8"/>
+  </g>
+</defs>
+</svg>
+
+<div class="wrap">
+  <div class="top">
+    <div class="sub">CAKSHAM AI — BRAND IDENTITY — V1</div>
+    <h1>Caksham AI</h1>
+    <div class="tagline">Vision That Understands Too</div>
+  </div>
+</div>
+<script>
+function setTheme(t){document.documentElement.setAttribute('data-theme', t); document.querySelectorAll('.theme-btn').forEach(function(b){b.classList.toggle('on', b.dataset.t===t);});}
+</script>
+</body>
+</html>

@@ -82,7 +82,7 @@ export const CameraManagement: React.FC = () => {
             </span>
           </div>
           <p className="text-[13px] text-[var(--color-ink-secondary)]">
-            Manage your department's CCTV surveillance inventory, RTSP pipelines, and AI edge bindings.
+            <span className="font-semibold text-[var(--color-ink)]">Caksham AI</span>: <span className="italic text-[var(--color-ink-muted)]">"Vision That Understands Too"</span> — Department CCTV surveillance inventory, ingestion pipelines, and edge AI bindings.
           </p>
         </div>
 

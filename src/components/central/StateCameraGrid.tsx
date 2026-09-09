@@ -87,11 +87,11 @@ export const StateCameraGrid: React.FC = () => {
             <h2 className="text-[22px] font-semibold tracking-tight text-[var(--color-ink)] mb-1">State Camera Grid</h2>
             <span className="badge badge-accent font-[var(--font-mono)] flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              SENTINEL LIVE GRID ({filteredCameras.length} CHANNELS)
+              CAKSHAM LIVE GRID ({filteredCameras.length} CHANNELS)
             </span>
           </div>
           <p className="text-[13px] text-[var(--color-ink-secondary)]">
-            Synchronized live surveillance wall with zero-delay WebRTC streaming and HLS auto-fallback across all state cameras.
+            <span className="font-semibold text-[var(--color-ink)]">Caksham AI</span>: <span className="italic text-[var(--color-ink-muted)]">"Vision That Understands Too"</span> — Synchronized statewide surveillance wall with sub-300ms WebRTC streaming and edge AI telemetry.
           </p>
         </div>
 
